@@ -1,6 +1,6 @@
 # Geohash
 
-This is yet another Geohash libary written in Swift.
+This is yet another Geohash library written in Swift.
 
 ## Usage
 
@@ -32,3 +32,4 @@ Copy geohash.swift into your project.
 ## Author
 
 Naoki Hiroshima, n@h7a.org
+
