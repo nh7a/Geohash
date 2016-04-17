@@ -75,20 +75,10 @@ class Geohash {
         let lon = Array(count: length*5, repeatedValue: longitude).reduce((-180.0, 180.0, [String]()), combine: combiner)
         // lon = (10.407439693808236, 10.407439693808556, [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1,0,1,..])
         
-        var latlon = [String]()
-        for i in 0..<min(lat.2.count, lon.2.count) {
-            latlon.append(lon.2[i])
-            latlon.append(lat.2[i])
-        }
+        let latlon = lon.2.enumerate().flatMap { [$1, lat.2[$0]] }
         // latlon - [1,1,0,1,0,0,0,1,0,0,1,0,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,...]
         
-        let bits = latlon.enumerate().reduce([String]()) {
-            if $1.0 % 5 == 0 {
-                return $0 + $1.1
-            } else {
-                return $0 << $1.1
-            }
-        }
+        let bits = latlon.enumerate().reduce([String]()) { $1.0 % 5 > 0 ? $0 << $1.1 : $0 + $1.1 }
         //  bits: [11010,00100,10101,10111,11010,11110,01100,10110,10110,11011,10001,10010,10101,...]
         
         let arr = bits.flatMap { charmap[$0] }
