@@ -42,17 +42,16 @@ class Geohash {
         }
         // lat = [1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,1,0,0]
         // lon = [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1]
-        
-        let latRange = lat.reduce((-90.0, 90.0)) {
-            let mid = ($0.0 + $0.1) / 2
-            return $1 == "1" ? (mid, $0.1) : ($0.0, mid)
+
+        func combiner(a: (min: Double, max: Double), value: Character) -> (Double, Double) {
+            let mean = (a.min + a.max) / 2
+            return value == "1" ? (mean, a.max) : (a.min, mean)
         }
+        
+        let latRange = lat.reduce((-90.0, 90.0), combine: combiner)
         // latRange = (57.649109959602356, 57.649111300706863)
         
-        let lonRange = lon.reduce((-180.0, 180.0)) {
-            let mid = ($0.0 + $0.1) / 2
-            return $1 == "1" ? (mid, $0.1) : ($0.0, mid)
-        }
+        let lonRange = lon.reduce((-180.0, 180.0), combine: combiner)
         // lonRange = (10.407439023256302, 10.407440364360809)
         
         return (latRange, lonRange)
