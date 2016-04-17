@@ -12,7 +12,7 @@ This is yet another Geohash library written in Swift.
     }
     
     let s = Geohash.encode(latitude: 57.64911063015461, longitude: 10.40743969380855, length: 10)
-    // s == "u4pruydqqvj"
+    // s == "u4pruydqqv"
 
 ## CLLocationCoordinate2D extension
 
