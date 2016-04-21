@@ -99,10 +99,10 @@ class Geohash {
             return dict
     }
 
-    private static let charmap = bitmap.map { ($1, $0) }
+    private static let charmap = bitmap
         .reduce([String:Character]()) {
             var dict = $0
-            dict[$1.0] = $1.1
+            dict[$1.1] = $1.0
             return dict
     }
 }
