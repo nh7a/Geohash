@@ -26,9 +26,9 @@ import CoreLocation
 
 class GeohashTests: XCTestCase {
     func testDecode() {
-        XCTAssertNil(Geohash.decode("garbage"))
+        XCTAssertNil(Geohash.decode(hash: "garbage"))
         
-        let (lat, lon) = Geohash.decode("u4pruydqqvj")!
+        let (lat, lon) = Geohash.decode(hash: "u4pruydqqvj")!
         XCTAssertTrue(lat.min == 57.649109959602356)
         XCTAssertTrue(lat.max == 57.649111300706863)
         XCTAssertTrue(lon.min == 10.407439023256302)

@@ -23,7 +23,7 @@
 import Foundation
 
 class Geohash {
-    static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
+    static func decode(hash hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
         // For example: hash = u4pruydqqvj
         
         let bits = hash.characters.map { bitmap[$0] ?? "?" }.joinWithSeparator("")
@@ -42,7 +42,7 @@ class Geohash {
         // lat = [1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,1,0,0]
         // lon = [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1]
 
-        func combiner(a: (min: Double, max: Double), value: Character) -> (Double, Double) {
+        func combiner(array a: (min: Double, max: Double), value: Character) -> (Double, Double) {
             let mean = (a.min + a.max) / 2
             return value == "1" ? (mean, a.max) : (a.min, mean)
         }
@@ -59,7 +59,7 @@ class Geohash {
     static func encode(latitude latitude: Double, longitude: Double, length: Int) -> String {
         // For example: (latitude, longitude) = (57.6491106301546, 10.4074396938086)
         
-        func combiner(a: (min: Double, max: Double, array: [String]), value: Double) -> (Double, Double, [String]) {
+        func combiner(array a: (min: Double, max: Double, array: [String]), value: Double) -> (Double, Double, [String]) {
             let mean = (a.min + a.max) / 2
             if value < mean {
                 return (a.min, mean, a.array + "0")
@@ -90,7 +90,7 @@ class Geohash {
     
     private static let bitmap = "0123456789bcdefghjkmnpqrstuvwxyz".characters.enumerate()
         .map {
-            ($1, String($0, radix: 2, padding: 5))
+            ($1, String(integer: $0, radix: 2, padding: 5))
         }
         .reduce([Character:String]()) {
             var dict = $0
@@ -107,7 +107,7 @@ class Geohash {
 }
 
 private extension String {
-    init(_ n: Int, radix: Int, padding: Int) {
+    init(integer n: Int, radix: Int, padding: Int) {
         let s = String(n, radix: radix)
         let pad = (padding - s.characters.count % padding) % padding
         self = Array(count: pad, repeatedValue: "0").joinWithSeparator("") + s
