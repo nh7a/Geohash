@@ -20,8 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import UIKit
-import MapKit
+import Foundation
 
 class Geohash {
     static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
@@ -129,7 +128,11 @@ private func << (left: Array<String>, right: String) -> Array<String> {
     return arr
 }
 
+#if os(OSX) || os(iOS)
+
 // MARK: - CLLocationCoordinate2D
+
+import CoreLocation
 
 extension CLLocationCoordinate2D {
     init?(geohash: String) {
@@ -141,3 +144,5 @@ extension CLLocationCoordinate2D {
         return Geohash.encode(latitude: latitude, longitude: longitude, length: length)
     }
 }
+
+#endif
