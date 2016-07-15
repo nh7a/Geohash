@@ -135,9 +135,12 @@ private func << (left: Array<String>, right: String) -> Array<String> {
 import CoreLocation
 
 extension CLLocationCoordinate2D {
-    init?(geohash: String) {
-        guard let (lat, lon) = Geohash.decode(geohash) else { return nil }
-        self = CLLocationCoordinate2DMake((lat.min + lat.max) / 2, (lon.min + lon.max) / 2)
+    init(geohash: String) {
+        if let (lat, lon) = Geohash.decode(hash: geohash) {
+            self = CLLocationCoordinate2DMake((lat.min + lat.max) / 2, (lon.min + lon.max) / 2)
+        } else {
+            self = kCLLocationCoordinate2DInvalid
+        }
     }
     
     func geohash(length: Int) -> String {

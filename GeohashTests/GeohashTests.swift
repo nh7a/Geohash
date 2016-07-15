@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import XCTest
+import CoreLocation
 @testable import Geohash
 
 class GeohashTests: XCTestCase {
@@ -40,5 +41,13 @@ class GeohashTests: XCTestCase {
         for i in 1...chars.count {
             XCTAssertTrue(Geohash.encode(latitude: lat, longitude: lon, length: i) == String(chars.prefix(i)))
         }
+    }
+    
+    func testCoreLocation() {
+        XCTAssertFalse(CLLocationCoordinate2DIsValid(CLLocationCoordinate2D(geohash: "garbage")))
+        
+        let c = CLLocationCoordinate2D(geohash: "u4pruydqqvj")
+        XCTAssertTrue(CLLocationCoordinate2DIsValid(c))
+        XCTAssertTrue(c.geohash(11) == "u4pruydqqvj")
     }
 }
