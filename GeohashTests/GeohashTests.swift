@@ -48,6 +48,6 @@ class GeohashTests: XCTestCase {
         
         let c = CLLocationCoordinate2D(geohash: "u4pruydqqvj")
         XCTAssertTrue(CLLocationCoordinate2DIsValid(c))
-        XCTAssertTrue(c.geohash(11) == "u4pruydqqvj")
+        XCTAssertTrue(c.geohash(length: 11) == "u4pruydqqvj")
     }
 }
