@@ -4,7 +4,7 @@ This is yet another Geohash library written in Swift.
 
 ## Usage
 
-    if let (lat, lon) = Geohash.decode("u4pruydqqvj") {
+    if let (lat, lon) = Geohash.decode(hash: "u4pruydqqvj") {
       // lat.min == 57.649109959602356
       // lat.max == 57.649111300706863
       // lon.min == 10.407439023256302
@@ -22,7 +22,7 @@ This is yet another Geohash library written in Swift.
     }
       
     let l = CLLocationCoordinate2DMake(57.64911063015461, 10.40743969380855)
-    let s = l.geohash(10)
+    let s = l.geohash(length: 10)
     // s == u4pruydqqv
 
 ## Installation
