@@ -27,7 +27,7 @@ This is yet another Geohash library written in Swift.
 
 ## Installation
 
-Copy geohash.swift into your project.
+Copy [Geohash.swift](https://raw.githubusercontent.com/nh7a/Geohash/master/Geohash/Geohash.swift) into your project.
 
 ## Author
 
