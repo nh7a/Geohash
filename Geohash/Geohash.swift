@@ -22,7 +22,7 @@
 
 import Foundation
 
-class Geohash {
+struct Geohash {
     static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
         // For example: hash = u4pruydqqvj
         
@@ -30,7 +30,7 @@ class Geohash {
         guard bits.characters.count % 5 == 0 else { return nil }
         // bits = 1101000100101011011111010111100110010110101101101110001
         
-        let (lat, lon) = bits.characters.enumerated().reduce(([Character](),[Character]())) {
+        let (lat, lon) = bits.characters.enumerated().reduce(([Character](), [Character]())) {
             var result = $0
             if $1.0 % 2 == 0 {
                 result.1.append($1.1)
@@ -92,17 +92,37 @@ class Geohash {
         .map {
             ($1, String(integer: $0, radix: 2, padding: 5))
         }
-        .reduce([Character:String]()) {
+        .reduce([Character: String]()) {
             var dict = $0
             dict[$1.0] = $1.1
             return dict
     }
 
     private static let charmap = bitmap
-        .reduce([String:Character]()) {
+        .reduce([String: Character]()) {
             var dict = $0
             dict[$1.1] = $1.0
             return dict
+    }
+}
+
+extension Geohash {
+    enum Precision: Int {
+        case twentyFiveHundredKilometers = 1    // ±2500 km
+        case sixHundredThirtyKilometers         // ±630 km
+        case seventyEightKilometers             // ±78 km
+        case twentyKilometers                   // ±20 km
+        case twentyFourHundredMeters            // ±2.4 km
+        case sixHundredTenMeters                // ±0.61 km
+        case seventySixMeters                   // ±0.076 km
+        case nineteenMeters                     // ±0.019 km
+        case twoHundredFourtyCentimeters        // ±0.0024 km
+        case sixtyCentimeters                   // ±0.00060 km
+        case seventyFourMillimeters             // ±0.000074 km
+    }
+    
+    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
+        return encode(latitude: latitude, longitude: longitude, length: precision.rawValue)
     }
 }
 
@@ -114,13 +134,13 @@ private extension String {
     }
 }
 
-private func + (left: Array<String>, right: String) -> Array<String> {
+private func + (left: [String], right: String) -> [String] {
     var arr = left
     arr.append(right)
     return arr
 }
 
-private func << (left: Array<String>, right: String) -> Array<String> {
+private func << (left: [String], right: String) -> [String] {
     var arr = left
     var s = arr.popLast()!
     s += right
@@ -145,6 +165,10 @@ extension CLLocationCoordinate2D {
     
     func geohash(length: Int) -> String {
         return Geohash.encode(latitude: latitude, longitude: longitude, length: length)
+    }
+    
+    func geohash(precision: Geohash.Precision) -> String {
+        return geohash(length: precision.rawValue)
     }
 }
 
