@@ -37,7 +37,7 @@ class GeohashTests: XCTestCase {
     
     func testEncode() {
         let (lat, lon) = (57.64911063015461, 10.40743969380855)
-        let chars = "u4pruydqqvj".characters
+        let chars = "u4pruydqqvj"
         for i in 1...chars.count {
             XCTAssertTrue(Geohash.encode(latitude: lat, longitude: lon, length: i) == String(chars.prefix(i)))
         }
@@ -51,3 +51,4 @@ class GeohashTests: XCTestCase {
         XCTAssertTrue(c.geohash(length: 11) == "u4pruydqqvj")
     }
 }
+

@@ -26,11 +26,11 @@ struct Geohash {
     static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
         // For example: hash = u4pruydqqvj
         
-        let bits = hash.characters.map { bitmap[$0] ?? "?" }.joined(separator: "")
-        guard bits.characters.count % 5 == 0 else { return nil }
+        let bits = hash.map { bitmap[$0] ?? "?" }.joined(separator: "")
+        guard bits.count % 5 == 0 else { return nil }
         // bits = 1101000100101011011111010111100110010110101101101110001
         
-        let (lat, lon) = bits.characters.enumerated().reduce(([Character](), [Character]())) {
+        let (lat, lon) = bits.enumerated().reduce(([Character](), [Character]())) {
             var result = $0
             if $1.0 % 2 == 0 {
                 result.1.append($1.1)
@@ -41,7 +41,7 @@ struct Geohash {
         }
         // lat = [1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,1,0,0]
         // lon = [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1]
-
+        
         func combiner(array a: (min: Double, max: Double), value: Character) -> (Double, Double) {
             let mean = (a.min + a.max) / 2
             return value == "1" ? (mean, a.max) : (a.min, mean)
@@ -88,7 +88,7 @@ struct Geohash {
     
     // MARK: Private
     
-    private static let bitmap = "0123456789bcdefghjkmnpqrstuvwxyz".characters.enumerated()
+    private static let bitmap = "0123456789bcdefghjkmnpqrstuvwxyz".enumerated()
         .map {
             ($1, String(integer: $0, radix: 2, padding: 5))
         }
@@ -97,7 +97,7 @@ struct Geohash {
             dict[$1.0] = $1.1
             return dict
     }
-
+    
     private static let charmap = bitmap
         .reduce([String: Character]()) {
             var dict = $0
@@ -129,7 +129,7 @@ extension Geohash {
 private extension String {
     init(integer n: Int, radix: Int, padding: Int) {
         let s = String(n, radix: radix)
-        let pad = (padding - s.characters.count % padding) % padding
+        let pad = (padding - s.count % padding) % padding
         self = Array(repeating: "0", count: pad).joined(separator: "") + s
     }
 }
@@ -149,27 +149,28 @@ private func << (left: [String], right: String) -> [String] {
 }
 
 #if os(OSX) || os(iOS)
-
-// MARK: - CLLocationCoordinate2D
-
-import CoreLocation
-
-extension CLLocationCoordinate2D {
-    init(geohash: String) {
-        if let (lat, lon) = Geohash.decode(hash: geohash) {
-            self = CLLocationCoordinate2DMake((lat.min + lat.max) / 2, (lon.min + lon.max) / 2)
-        } else {
-            self = kCLLocationCoordinate2DInvalid
+    
+    // MARK: - CLLocationCoordinate2D
+    
+    import CoreLocation
+    
+    extension CLLocationCoordinate2D {
+        init(geohash: String) {
+            if let (lat, lon) = Geohash.decode(hash: geohash) {
+                self = CLLocationCoordinate2DMake((lat.min + lat.max) / 2, (lon.min + lon.max) / 2)
+            } else {
+                self = kCLLocationCoordinate2DInvalid
+            }
+        }
+        
+        func geohash(length: Int) -> String {
+            return Geohash.encode(latitude: latitude, longitude: longitude, length: length)
+        }
+        
+        func geohash(precision: Geohash.Precision) -> String {
+            return geohash(length: precision.rawValue)
         }
     }
     
-    func geohash(length: Int) -> String {
-        return Geohash.encode(latitude: latitude, longitude: longitude, length: length)
-    }
-    
-    func geohash(precision: Geohash.Precision) -> String {
-        return geohash(length: precision.rawValue)
-    }
-}
-
 #endif
+
