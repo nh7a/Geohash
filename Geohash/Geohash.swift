@@ -30,14 +30,12 @@ struct Geohash {
         guard bits.count % 5 == 0 else { return nil }
         // bits = 1101000100101011011111010111100110010110101101101110001
         
-        let (lat, lon) = bits.enumerated().reduce(([Character](), [Character]())) {
-            var result = $0
+        let (lat, lon) = bits.enumerated().reduce(into: ([Character](), [Character]())) {
             if $1.0 % 2 == 0 {
-                result.1.append($1.1)
+                $0.1.append($1.1)
             } else {
-                result.0.append($1.1)
+                $0.0.append($1.1)
             }
-            return result
         }
         // lat = [1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,1,0,0]
         // lon = [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1]
@@ -92,17 +90,13 @@ struct Geohash {
         .map {
             ($1, String(integer: $0, radix: 2, padding: 5))
         }
-        .reduce([Character: String]()) {
-            var dict = $0
-            dict[$1.0] = $1.1
-            return dict
+        .reduce(into: [Character: String]()) {
+            $0[$1.0] = $1.1
     }
     
     private static let charmap = bitmap
-        .reduce([String: Character]()) {
-            var dict = $0
-            dict[$1.1] = $1.0
-            return dict
+        .reduce(into: [String: Character]()) {
+            $0[$1.1] = $1.0
     }
 }
 
