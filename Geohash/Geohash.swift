@@ -80,7 +80,7 @@ struct Geohash {
         let bits = latlon.enumerated().reduce([String]()) { $1.0 % 5 > 0 ? $0 << $1.1 : $0 + $1.1 }
         //  bits: [11010,00100,10101,10111,11010,11110,01100,10110,10110,11011,10001,10010,10101,...]
         
-        let arr = bits.flatMap { charmap[$0] }
+        let arr = bits.compactMap { charmap[$0] }
         // arr: [u,4,p,r,u,y,d,q,q,v,j,k,p,b,...]
         
         return String(arr.prefix(length))
