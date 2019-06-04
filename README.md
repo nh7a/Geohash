@@ -27,7 +27,7 @@ let s = l.geohash(length: 10)
 ````
 ## Installation
 
-Copy [Geohash.swift](https://raw.githubusercontent.com/nh7a/Geohash/master/Geohash/Geohash.swift) into your project.
+Use Swift Package Manager or copy [Geohash.swift](https://raw.githubusercontent.com/nh7a/Geohash/master/Sources/Geohash/Geohash.swift) into your project.
 
 ## Author
 
