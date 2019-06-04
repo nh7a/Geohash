@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Naoki Hiroshima
+// Copyright (c) 2019 Naoki Hiroshima
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,17 @@ import XCTest
 import CoreLocation
 @testable import Geohash
 
-class GeohashTests: XCTestCase {
+final class GeohashTests: XCTestCase {
     func testDecode() {
         XCTAssertNil(Geohash.decode(hash: "garbage"))
-        
+
         let (lat, lon) = Geohash.decode(hash: "u4pruydqqvj")!
         XCTAssertTrue(lat.min == 57.649109959602356)
         XCTAssertTrue(lat.max == 57.649111300706863)
         XCTAssertTrue(lon.min == 10.407439023256302)
         XCTAssertTrue(lon.max == 10.407440364360809)
     }
-    
+
     func testEncode() {
         let (lat, lon) = (57.64911063015461, 10.40743969380855)
         let chars = "u4pruydqqvj"
@@ -42,13 +42,18 @@ class GeohashTests: XCTestCase {
             XCTAssertTrue(Geohash.encode(latitude: lat, longitude: lon, length: i) == String(chars.prefix(i)))
         }
     }
-    
+
     func testCoreLocation() {
         XCTAssertFalse(CLLocationCoordinate2DIsValid(CLLocationCoordinate2D(geohash: "garbage")))
-        
+
         let c = CLLocationCoordinate2D(geohash: "u4pruydqqvj")
         XCTAssertTrue(CLLocationCoordinate2DIsValid(c))
         XCTAssertTrue(c.geohash(length: 11) == "u4pruydqqvj")
     }
-}
 
+    static var allTests = [
+        ("testDecode", testDecode),
+        ("testEncode", testEncode),
+        ("testCoreLocation", testCoreLocation),
+    ]
+}
