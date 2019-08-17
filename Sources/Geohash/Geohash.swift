@@ -142,7 +142,7 @@ private func << (left: [String], right: String) -> [String] {
     return arr
 }
 
-#if os(OSX) || os(iOS)
+#if canImport(CoreLocation)
 
 // MARK: - CLLocationCoordinate2D
 

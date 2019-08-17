@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 import XCTest
-import CoreLocation
 @testable import Geohash
 
 final class GeohashTests: XCTestCase {
@@ -43,6 +42,16 @@ final class GeohashTests: XCTestCase {
         }
     }
 
+    static var allTests = [
+        ("testDecode", testDecode),
+        ("testEncode", testEncode),
+    ]
+}
+
+#if canImport(CoreLocation)
+import CoreLocation
+
+final class GeohashCoreLocationTests: XCTestCase {
     func testCoreLocation() {
         XCTAssertFalse(CLLocationCoordinate2DIsValid(CLLocationCoordinate2D(geohash: "garbage")))
 
@@ -52,8 +61,8 @@ final class GeohashTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testDecode", testDecode),
-        ("testEncode", testEncode),
         ("testCoreLocation", testCoreLocation),
     ]
 }
+
+#endif
