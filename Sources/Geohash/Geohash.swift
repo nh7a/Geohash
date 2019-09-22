@@ -102,17 +102,17 @@ public struct Geohash {
 
 public extension Geohash {
     enum Precision: Int {
-        case twentyFiveHundredKilometers = 1    // ±2500 km
-        case sixHundredThirtyKilometers         // ±630 km
-        case seventyEightKilometers             // ±78 km
-        case twentyKilometers                   // ±20 km
-        case twentyFourHundredMeters            // ±2.4 km
-        case sixHundredTenMeters                // ±0.61 km
-        case seventySixMeters                   // ±0.076 km
-        case nineteenMeters                     // ±0.019 km
-        case twoHundredFourtyCentimeters        // ±0.0024 km
-        case sixtyCentimeters                   // ±0.00060 km
-        case seventyFourMillimeters             // ±0.000074 km
+        case _1_2500km = 1  // ±2500 km
+        case _2_630km       // ±630 km
+        case _3_78km        // ±78 km
+        case _4_20km        // ±20 km
+        case _5_2400m       // ±2.4 km
+        case _6_610m        // ±0.61 km
+        case _7_76m         // ±0.076 km
+        case _8_19m         // ±0.019 km
+        case _9_2400cm      // ±0.0024 km
+        case _10_60cm       // ±0.00060 km
+        case _11_74mm       // ±0.000074 km
     }
 
     static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
