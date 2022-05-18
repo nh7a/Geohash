@@ -22,11 +22,13 @@
 
 import Foundation
 
-public struct Geohash {
+public enum Geohash {
     public static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
         // For example: hash = u4pruydqqvj
-        
-        let bits = hash.map { bitmap[$0] ?? "?" }.joined(separator: "")
+
+        let bits = hash
+            .map { bitmap[$0] ?? "?" }
+            .joined(separator: "")
         guard bits.count % 5 == 0 else { return nil }
         // bits = 1101000100101011011111010111100110010110101101101110001
         
@@ -65,11 +67,11 @@ public struct Geohash {
                 return (mean, a.max, a.array + "1")
             }
         }
-        
-        let lat = Array(repeating: latitude, count: length*5).reduce((-90.0, 90.0, [String]()), combiner)
+
+        let lat = Array(repeating: latitude, count: length * 5).reduce((-90.0, 90.0, [String]()), combiner)
         // lat = (57.64911063015461, 57.649110630154766, [1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,0,...])
-        
-        let lon = Array(repeating: longitude, count: length*5).reduce((-180.0, 180.0, [String]()), combiner)
+
+        let lon = Array(repeating: longitude, count: length * 5).reduce((-180.0, 180.0, [String]()), combiner)
         // lon = (10.407439693808236, 10.407439693808556, [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1,0,1,..])
         
         let latlon = lon.2.enumerated().flatMap { [$1, lat.2[$0]] }
@@ -85,15 +87,16 @@ public struct Geohash {
     }
     
     // MARK: Private
-    
-    private static let bitmap = "0123456789bcdefghjkmnpqrstuvwxyz".enumerated()
+
+    private static let bitmap = "0123456789bcdefghjkmnpqrstuvwxyz"
+        .enumerated()
         .map {
             ($1, String(integer: $0, radix: 2, padding: 5))
         }
         .reduce(into: [Character: String]()) {
             $0[$1.0] = $1.1
         }
-    
+
     private static let charmap = bitmap
         .reduce(into: [String: Character]()) {
             $0[$1.1] = $1.0
