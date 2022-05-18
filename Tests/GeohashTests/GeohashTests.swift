@@ -26,6 +26,7 @@ import XCTest
 final class GeohashTests: XCTestCase {
     func testDecode() {
         XCTAssertNil(Geohash.decode(hash: "garbage"))
+        XCTAssertNil(Geohash.decode(hash: "u$pruydqqvj"))
 
         let (lat, lon) = Geohash.decode(hash: "u4pruydqqvj")!
         XCTAssertTrue(lat.min == 57.649109959602356)
