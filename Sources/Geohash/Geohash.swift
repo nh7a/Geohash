@@ -103,34 +103,6 @@ public enum Geohash {
         }
 }
 
-public extension Geohash {
-    enum Precision: Int {
-        case twentyFiveHundredKilometers = 1    // ±2500 km
-        case sixHundredThirtyKilometers         // ±630 km
-        case seventyEightKilometers             // ±78 km
-        case twentyKilometers                   // ±20 km
-        case twentyFourHundredMeters            // ±2.4 km
-        case sixHundredTenMeters                // ±0.61 km
-        case seventySixMeters                   // ±0.076 km
-        case nineteenMeters                     // ±0.019 km
-        case twoHundredFourtyCentimeters        // ±0.0024 km
-        case sixtyCentimeters                   // ±0.00060 km
-        case seventyFourMillimeters             // ±0.000074 km
-    }
-
-    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
-        return encode(latitude: latitude, longitude: longitude, length: precision.rawValue)
-    }
-}
-
-private extension String {
-    init(integer n: Int, radix: Int, padding: Int) {
-        let s = String(n, radix: radix)
-        let pad = (padding - s.count % padding) % padding
-        self = Array(repeating: "0", count: pad).joined(separator: "") + s
-    }
-}
-
 private func + (left: [String], right: String) -> [String] {
     var arr = left
     arr.append(right)
@@ -203,14 +175,14 @@ public extension Geohash {
         }
     }
 
-    static func adjacent(geohash: String, direction: Direction) throws -> String {
+    static func adjacent(geohash: String, direction: Direction) -> String {
         let lastChar = geohash.last!
         var parent = String(geohash.dropLast())
         let type = geohash.count % 2
 
         // Check for edge-cases which don't share common prefix
         if direction.border[type].contains(lastChar), !parent.isEmpty {
-            parent = try Geohash.adjacent(geohash: parent, direction: direction)
+            parent = Geohash.adjacent(geohash: parent, direction: direction)
         }
 
         // Append letter for direction to parent
@@ -219,19 +191,48 @@ public extension Geohash {
         return parent + String(base32[charIndex])
     }
 
-    static func neighbors(geohash: String) throws -> [String] {
-        let n = try adjacent(geohash: geohash, direction: .n)
-        let e = try adjacent(geohash: geohash, direction: .e)
-        let s = try adjacent(geohash: geohash, direction: .s)
-        let w = try adjacent(geohash: geohash, direction: .w)
+    static func neighbors(geohash: String) -> [String] {
+        let n = adjacent(geohash: geohash, direction: .n)
+        let e = adjacent(geohash: geohash, direction: .e)
+        let s = adjacent(geohash: geohash, direction: .s)
+        let w = adjacent(geohash: geohash, direction: .w)
 
         return [
             n, e, s, w,
-            try adjacent(geohash: n, direction: .e), // ne
-            try adjacent(geohash: s, direction: .e), // se
-            try adjacent(geohash: n, direction: .w), // nw
-            try adjacent(geohash: s, direction: .w) // sw
+            adjacent(geohash: n, direction: .e), // ne
+            adjacent(geohash: s, direction: .e), // se
+            adjacent(geohash: n, direction: .w), // nw
+            adjacent(geohash: s, direction: .w) // sw
         ]
+    }
+}
+
+// MARK: Extensions
+public extension Geohash {
+    enum Precision: Int {
+        case twentyFiveHundredKilometers = 1    // ±2500 km
+        case sixHundredThirtyKilometers         // ±630 km
+        case seventyEightKilometers             // ±78 km
+        case twentyKilometers                   // ±20 km
+        case twentyFourHundredMeters            // ±2.4 km
+        case sixHundredTenMeters                // ±0.61 km
+        case seventySixMeters                   // ±0.076 km
+        case nineteenMeters                     // ±0.019 km
+        case twoHundredFourtyCentimeters        // ±0.0024 km
+        case sixtyCentimeters                   // ±0.00060 km
+        case seventyFourMillimeters             // ±0.000074 km
+    }
+
+    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
+        return encode(latitude: latitude, longitude: longitude, length: precision.rawValue)
+    }
+}
+
+private extension String {
+    init(integer n: Int, radix: Int, padding: Int) {
+        let s = String(n, radix: radix)
+        let pad = (padding - s.count % padding) % padding
+        self = Array(repeating: "0", count: pad).joined(separator: "") + s
     }
 }
 
