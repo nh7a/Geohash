@@ -43,9 +43,38 @@ final class GeohashTests: XCTestCase {
         }
     }
 
+    func testGetAdjacent() {
+        let north = Geohash.adjacent(geohash: "u4pruydqqvj", direction: .n)
+        let east = Geohash.adjacent(geohash: "u4pruydqqvj", direction: .e)
+        let south = Geohash.adjacent(geohash: "u4pruydqqvj", direction: .s)
+        let west = Geohash.adjacent(geohash: "u4pruydqqvj", direction: .w)
+
+        XCTAssertEqual(north, "u4pruydqqvm")
+        XCTAssertEqual(east, "u4pruydqqvn")
+        XCTAssertEqual(south, "u4pruydqquv")
+        XCTAssertEqual(west, "u4pruydqqvh")
+    }
+
+    func testGetNeighbors() {
+        let neighbors = Geohash.neighbors(geohash: "u4pruydqqvj")
+        let expectedNeighbors = [
+            "u4pruydqqvm", // n
+            "u4pruydqqvn", // e
+            "u4pruydqquv", // s
+            "u4pruydqqvh", // w
+            "u4pruydqqvq", // ne
+            "u4pruydqquy", // se
+            "u4pruydqqvk", // nw
+            "u4pruydqquu"  // sw
+        ]
+        XCTAssertEqual(neighbors, expectedNeighbors)
+    }
+
     static var allTests = [
         ("testDecode", testDecode),
         ("testEncode", testEncode),
+        ("testGetAdjacent", testGetAdjacent),
+        ("testGetNeighbors", testGetNeighbors),
     ]
 }
 

@@ -103,34 +103,6 @@ public enum Geohash {
         }
 }
 
-public extension Geohash {
-    enum Precision: Int {
-        case twentyFiveHundredKilometers = 1    // ±2500 km
-        case sixHundredThirtyKilometers         // ±630 km
-        case seventyEightKilometers             // ±78 km
-        case twentyKilometers                   // ±20 km
-        case twentyFourHundredMeters            // ±2.4 km
-        case sixHundredTenMeters                // ±0.61 km
-        case seventySixMeters                   // ±0.076 km
-        case nineteenMeters                     // ±0.019 km
-        case twoHundredFourtyCentimeters        // ±0.0024 km
-        case sixtyCentimeters                   // ±0.00060 km
-        case seventyFourMillimeters             // ±0.000074 km
-    }
-
-    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
-        return encode(latitude: latitude, longitude: longitude, length: precision.rawValue)
-    }
-}
-
-private extension String {
-    init(integer n: Int, radix: Int, padding: Int) {
-        let s = String(n, radix: radix)
-        let pad = (padding - s.count % padding) % padding
-        self = Array(repeating: "0", count: pad).joined(separator: "") + s
-    }
-}
-
 private func + (left: [String], right: String) -> [String] {
     var arr = left
     arr.append(right)
@@ -170,3 +142,113 @@ public extension CLLocationCoordinate2D {
 }
 
 #endif
+
+public extension Geohash {
+    private static var base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
+    enum Direction: String {
+        case n, e, s, w
+
+        var neighbor: [String] {
+            switch self {
+            case .n:
+                return ["p0r21436x8zb9dcf5h7kjnmqesgutwvy", "bc01fg45238967deuvhjyznpkmstqrwx"]
+            case .e:
+                return ["bc01fg45238967deuvhjyznpkmstqrwx", "p0r21436x8zb9dcf5h7kjnmqesgutwvy"]
+            case .s:
+                return ["14365h7k9dcfesgujnmqp0r2twvyx8zb", "238967debc01fg45kmstqrwxuvhjyznp"]
+            case .w:
+                return ["238967debc01fg45kmstqrwxuvhjyznp", "14365h7k9dcfesgujnmqp0r2twvyx8zb"]
+            }
+        }
+
+        var border: [String] {
+            switch self {
+            case .n:
+                return ["prxz", "bcfguvyz"]
+            case .e:
+                return ["bcfguvyz", "prxz"]
+            case .s:
+                return ["028b", "0145hjnp"]
+            case .w:
+                return ["0145hjnp", "028b"]
+            }
+        }
+    }
+
+    static func adjacent(geohash: String, direction: Direction) -> String {
+        let lastChar = geohash.last!
+        var parent = String(geohash.dropLast())
+        let type = geohash.count % 2
+
+        // Check for edge-cases which don't share common prefix
+        if direction.border[type].contains(lastChar), !parent.isEmpty {
+            parent = Geohash.adjacent(geohash: parent, direction: direction)
+        }
+
+        // Append letter for direction to parent
+        let charIndex = direction.neighbor[type].distance(of: lastChar)!
+
+        return parent + String(base32[charIndex])
+    }
+
+    static func neighbors(geohash: String) -> [String] {
+        let n = adjacent(geohash: geohash, direction: .n)
+        let e = adjacent(geohash: geohash, direction: .e)
+        let s = adjacent(geohash: geohash, direction: .s)
+        let w = adjacent(geohash: geohash, direction: .w)
+
+        return [
+            n, e, s, w,
+            adjacent(geohash: n, direction: .e), // ne
+            adjacent(geohash: s, direction: .e), // se
+            adjacent(geohash: n, direction: .w), // nw
+            adjacent(geohash: s, direction: .w) // sw
+        ]
+    }
+}
+
+// MARK: Extensions
+public extension Geohash {
+    enum Precision: Int {
+        case twentyFiveHundredKilometers = 1    // ±2500 km
+        case sixHundredThirtyKilometers         // ±630 km
+        case seventyEightKilometers             // ±78 km
+        case twentyKilometers                   // ±20 km
+        case twentyFourHundredMeters            // ±2.4 km
+        case sixHundredTenMeters                // ±0.61 km
+        case seventySixMeters                   // ±0.076 km
+        case nineteenMeters                     // ±0.019 km
+        case twoHundredFourtyCentimeters        // ±0.0024 km
+        case sixtyCentimeters                   // ±0.00060 km
+        case seventyFourMillimeters             // ±0.000074 km
+    }
+
+    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
+        return encode(latitude: latitude, longitude: longitude, length: precision.rawValue)
+    }
+}
+
+private extension String {
+    init(integer n: Int, radix: Int, padding: Int) {
+        let s = String(n, radix: radix)
+        let pad = (padding - s.count % padding) % padding
+        self = Array(repeating: "0", count: pad).joined(separator: "") + s
+    }
+}
+
+private extension StringProtocol {
+    func distance(of element: Element) -> Int? { firstIndex(of: element)?.distance(in: self) }
+    func distance<S: StringProtocol>(of string: S) -> Int? { range(of: string)?.lowerBound.distance(in: self) }
+
+    subscript(offset: Int) -> Character {
+        self[index(startIndex, offsetBy: offset)]
+    }
+}
+
+private extension Collection {
+    func distance(to index: Index) -> Int { distance(from: startIndex, to: index) }
+}
+
+private extension String.Index {
+    func distance<S: StringProtocol>(in string: S) -> Int { string.distance(to: self) }
+}
