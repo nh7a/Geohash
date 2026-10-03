@@ -26,10 +26,9 @@ public enum Geohash {
     public static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
         // For example: hash = u4pruydqqvj
 
-        let bits = hash
-            .map { bitmap[$0] ?? "?" }
-            .joined(separator: "")
-        guard bits.count % 5 == 0 else { return nil }
+        let chunks = hash.compactMap { bitmap[$0] }
+        guard chunks.count == hash.count else { return nil }
+        let bits = chunks.joined(separator: "")
         // bits = 1101000100101011011111010111100110010110101101101110001
 
         let (lat, lon) = bits.enumerated().reduce(into: ([Character](), [Character]())) {
