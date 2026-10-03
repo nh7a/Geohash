@@ -148,7 +148,7 @@ public extension CLLocationCoordinate2D {
 
 public extension Geohash {
     private static let base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
-    enum Direction: String {
+    enum Direction: String, Sendable {
         case n, e, s, w
 
         var neighbor: [String] {
@@ -227,7 +227,7 @@ public extension Geohash {
 
 // MARK: Extensions
 public extension Geohash {
-    enum Precision: Int {
+    enum Precision: Int, Sendable {
         case twentyFiveHundredKilometers = 1    // ±2500 km
         case sixHundredThirtyKilometers         // ±630 km
         case seventyEightKilometers             // ±78 km
