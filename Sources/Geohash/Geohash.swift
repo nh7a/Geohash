@@ -173,28 +173,28 @@ public extension Geohash {
         }
     }
 
-    /// Returns `nil` if `geohash` is not a valid geohash.
+    /// Returns `nil` if `geohash` is not a valid geohash, or if there is nothing beyond it in
+    /// `direction` because it lies on the north or south pole. East and west wrap around the
+    /// antimeridian.
     static func adjacent(geohash: String, direction: Direction) -> String? {
         guard isValid(geohash) else { return nil }
         return _adjacent(geohash: geohash, direction: direction)
     }
 
-    /// Returns `nil` if `geohash` is not a valid geohash.
+    /// Returns `nil` if `geohash` is not a valid geohash, or if it touches a pole and therefore
+    /// has no northern or southern neighbors.
     static func neighbors(geohash: String) -> [String]? {
-        guard isValid(geohash) else { return nil }
+        guard isValid(geohash),
+              let n = _adjacent(geohash: geohash, direction: .n),
+              let e = _adjacent(geohash: geohash, direction: .e),
+              let s = _adjacent(geohash: geohash, direction: .s),
+              let w = _adjacent(geohash: geohash, direction: .w),
+              let ne = _adjacent(geohash: n, direction: .e),
+              let se = _adjacent(geohash: s, direction: .e),
+              let nw = _adjacent(geohash: n, direction: .w),
+              let sw = _adjacent(geohash: s, direction: .w) else { return nil }
 
-        let n = _adjacent(geohash: geohash, direction: .n)
-        let e = _adjacent(geohash: geohash, direction: .e)
-        let s = _adjacent(geohash: geohash, direction: .s)
-        let w = _adjacent(geohash: geohash, direction: .w)
-
-        return [
-            n, e, s, w,
-            _adjacent(geohash: n, direction: .e), // ne
-            _adjacent(geohash: s, direction: .e), // se
-            _adjacent(geohash: n, direction: .w), // nw
-            _adjacent(geohash: s, direction: .w) // sw
-        ]
+        return [n, e, s, w, ne, se, nw, sw]
     }
 
     /// A valid geohash is non-empty and made only of characters from the base32 alphabet.
@@ -203,14 +203,20 @@ public extension Geohash {
     }
 
     // The caller must have checked that `geohash` is valid.
-    private static func _adjacent(geohash: String, direction: Direction) -> String {
+    private static func _adjacent(geohash: String, direction: Direction) -> String? {
         let lastChar = geohash.last!
         var parent = String(geohash.dropLast())
         let type = geohash.count % 2
 
         // Check for edge-cases which don't share common prefix
-        if direction.border[type].contains(lastChar), !parent.isEmpty {
-            parent = _adjacent(geohash: parent, direction: direction)
+        if direction.border[type].contains(lastChar) {
+            if !parent.isEmpty {
+                guard let adjacentParent = _adjacent(geohash: parent, direction: direction) else { return nil }
+                parent = adjacentParent
+            } else if direction == .n || direction == .s {
+                // The top-level cell is on the edge of the world: longitude wraps around, latitude doesn't
+                return nil
+            }
         }
 
         // Append letter for direction to parent
