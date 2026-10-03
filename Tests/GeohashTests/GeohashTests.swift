@@ -88,6 +88,43 @@ struct GeohashTests {
         #expect(Geohash.adjacent(geohash: "u4pruydqqvj", direction: direction) == expected)
     }
 
+    @Test func adjacentAtPoles() throws {
+        let north = try #require(Geohash.encode(latitude: 90, longitude: 10, length: 6))
+        let south = try #require(Geohash.encode(latitude: -90, longitude: 10, length: 6))
+
+        #expect(Geohash.adjacent(geohash: north, direction: .n) == nil)
+        #expect(Geohash.adjacent(geohash: south, direction: .s) == nil)
+        #expect(Geohash.adjacent(geohash: north, direction: .s) != nil)
+        #expect(Geohash.adjacent(geohash: south, direction: .n) != nil)
+        #expect(Geohash.adjacent(geohash: north, direction: .e) != nil)
+        #expect(Geohash.adjacent(geohash: south, direction: .w) != nil)
+        #expect(Geohash.neighbors(geohash: north) == nil)
+        #expect(Geohash.neighbors(geohash: south) == nil)
+    }
+
+    @Test(arguments: ["z", "b", "zz", "bp", "zzzzzz"])
+    func adjacentAtPolesAnyLength(hash: String) {
+        // All of these are in the top row of the world.
+        #expect(Geohash.adjacent(geohash: hash, direction: .n) == nil)
+    }
+
+    @Test(arguments: ["0", "1", "00", "08", "000000"])
+    func adjacentAtSouthPoleAnyLength(hash: String) {
+        // All of these are in the bottom row of the world.
+        #expect(Geohash.adjacent(geohash: hash, direction: .s) == nil)
+    }
+
+    @Test func adjacentWrapsAroundAntimeridian() throws {
+        let east = try #require(Geohash.encode(latitude: 10, longitude: 179.99999, length: 6))
+        let west = try #require(Geohash.encode(latitude: 10, longitude: -179.99999, length: 6))
+
+        let wrappedEast = try #require(Geohash.adjacent(geohash: east, direction: .e))
+        let wrappedWest = try #require(Geohash.adjacent(geohash: west, direction: .w))
+        #expect(try #require(Geohash.decode(hash: wrappedEast)).longitude.min == -180)
+        #expect(try #require(Geohash.decode(hash: wrappedWest)).longitude.max == 180)
+        #expect(Geohash.neighbors(geohash: east) != nil)
+    }
+
     @Test func neighbors() {
         let expected = [
             "u4pruydqqvm", // n
