@@ -20,7 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+#if canImport(CoreLocation)
+import CoreLocation
+#endif
 
 public enum Geohash {
     public static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
@@ -99,7 +101,9 @@ public enum Geohash {
 
     // MARK: Private
 
-    private static let bitmap = "0123456789bcdefghjkmnpqrstuvwxyz"
+    private static let base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
+
+    private static let bitmap = base32
         .enumerated()
         .map {
             ($1, String(integer: $0, radix: 2, padding: 5))
@@ -117,8 +121,6 @@ public enum Geohash {
 #if canImport(CoreLocation)
 
 // MARK: - CLLocationCoordinate2D
-
-import CoreLocation
 
 public extension CLLocationCoordinate2D {
     init(geohash: String) {
@@ -141,7 +143,6 @@ public extension CLLocationCoordinate2D {
 #endif
 
 public extension Geohash {
-    private static let base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
     enum Direction: String, Sendable {
         case n, e, s, w
 
@@ -250,7 +251,6 @@ private extension String {
 
 private extension StringProtocol {
     func distance(of element: Element) -> Int? { firstIndex(of: element)?.distance(in: self) }
-    func distance<S: StringProtocol>(of string: S) -> Int? { range(of: string)?.lowerBound.distance(in: self) }
 
     subscript(offset: Int) -> Character {
         self[index(startIndex, offsetBy: offset)]
