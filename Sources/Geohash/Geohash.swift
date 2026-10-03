@@ -144,7 +144,7 @@ public extension CLLocationCoordinate2D {
 #endif
 
 public extension Geohash {
-    private static var base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
+    private static let base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
     enum Direction: String {
         case n, e, s, w
 
