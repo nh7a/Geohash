@@ -70,7 +70,7 @@ final class GeohashTests: XCTestCase {
         XCTAssertEqual(neighbors, expectedNeighbors)
     }
 
-    static var allTests = [
+    static let allTests = [
         ("testDecode", testDecode),
         ("testEncode", testEncode),
         ("testGetAdjacent", testGetAdjacent),
@@ -90,7 +90,7 @@ final class GeohashCoreLocationTests: XCTestCase {
         XCTAssertTrue(c.geohash(length: 11) == "u4pruydqqvj")
     }
 
-    static var allTests = [
+    static let allTests = [
         ("testCoreLocation", testCoreLocation),
     ]
 }
