@@ -62,25 +62,33 @@ public enum Geohash {
               (-180.0...180.0).contains(longitude) else { return nil }
         // For example: (latitude, longitude) = (57.6491106301546, 10.4074396938086)
 
-        func combiner(array a: (min: Double, max: Double, array: [String]), value: Double) -> (Double, Double, [String]) {
+        func combiner(array a: inout (min: Double, max: Double, array: [String]), value: Double) {
             let mean = (a.min + a.max) / 2
             if value < mean {
-                return (a.min, mean, a.array + "0")
+                a.max = mean
+                a.array.append("0")
             } else {
-                return (mean, a.max, a.array + "1")
+                a.min = mean
+                a.array.append("1")
             }
         }
 
-        let lat = Array(repeating: latitude, count: length * 5).reduce((-90.0, 90.0, [String]()), combiner)
+        let lat = Array(repeating: latitude, count: length * 5).reduce(into: (min: -90.0, max: 90.0, array: [String]()), combiner)
         // lat = (57.64911063015461, 57.649110630154766, [1,1,0,1,0,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,0,...])
 
-        let lon = Array(repeating: longitude, count: length * 5).reduce((-180.0, 180.0, [String]()), combiner)
+        let lon = Array(repeating: longitude, count: length * 5).reduce(into: (min: -180.0, max: 180.0, array: [String]()), combiner)
         // lon = (10.407439693808236, 10.407439693808556, [1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,1,0,1,0,1,..])
 
         let latlon = lon.2.enumerated().flatMap { [$1, lat.2[$0]] }
         // latlon - [1,1,0,1,0,0,0,1,0,0,1,0,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,...]
 
-        let bits = latlon.enumerated().reduce([String]()) { $1.0 % 5 > 0 ? $0 << $1.1 : $0 + $1.1 }
+        let bits = latlon.enumerated().reduce(into: [String]()) {
+            if $1.0 % 5 > 0 {
+                $0[$0.count - 1] += $1.1
+            } else {
+                $0.append($1.1)
+            }
+        }
         //  bits: [11010,00100,10101,10111,11010,11110,01100,10110,10110,11011,10001,10010,10101,...]
 
         let arr = bits.compactMap { charmap[$0] }
@@ -104,20 +112,6 @@ public enum Geohash {
         .reduce(into: [String: Character]()) {
             $0[$1.1] = $1.0
         }
-}
-
-private func + (left: [String], right: String) -> [String] {
-    var arr = left
-    arr.append(right)
-    return arr
-}
-
-private func << (left: [String], right: String) -> [String] {
-    var arr = left
-    var s = arr.popLast()!
-    s += right
-    arr.append(s)
-    return arr
 }
 
 #if canImport(CoreLocation)
