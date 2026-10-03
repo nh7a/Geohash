@@ -55,7 +55,11 @@ public enum Geohash {
         return (latRange, lonRange)
     }
 
-    public static func encode(latitude: Double, longitude: Double, length: Int) -> String {
+    /// Returns `nil` if `length` is negative or the coordinate is NaN or out of range.
+    public static func encode(latitude: Double, longitude: Double, length: Int) -> String? {
+        guard length >= 0,
+              (-90.0...90.0).contains(latitude),
+              (-180.0...180.0).contains(longitude) else { return nil }
         // For example: (latitude, longitude) = (57.6491106301546, 10.4074396938086)
 
         func combiner(array a: (min: Double, max: Double, array: [String]), value: Double) -> (Double, Double, [String]) {
@@ -131,11 +135,11 @@ public extension CLLocationCoordinate2D {
         }
     }
 
-    func geohash(length: Int) -> String {
+    func geohash(length: Int) -> String? {
         return Geohash.encode(latitude: latitude, longitude: longitude, length: length)
     }
 
-    func geohash(precision: Geohash.Precision) -> String {
+    func geohash(precision: Geohash.Precision) -> String? {
         return geohash(length: precision.rawValue)
     }
 }
@@ -174,35 +178,50 @@ public extension Geohash {
         }
     }
 
-    static func adjacent(geohash: String, direction: Direction) -> String {
+    /// Returns `nil` if `geohash` is not a valid geohash.
+    static func adjacent(geohash: String, direction: Direction) -> String? {
+        guard isValid(geohash) else { return nil }
+        return _adjacent(geohash: geohash, direction: direction)
+    }
+
+    /// Returns `nil` if `geohash` is not a valid geohash.
+    static func neighbors(geohash: String) -> [String]? {
+        guard isValid(geohash) else { return nil }
+
+        let n = _adjacent(geohash: geohash, direction: .n)
+        let e = _adjacent(geohash: geohash, direction: .e)
+        let s = _adjacent(geohash: geohash, direction: .s)
+        let w = _adjacent(geohash: geohash, direction: .w)
+
+        return [
+            n, e, s, w,
+            _adjacent(geohash: n, direction: .e), // ne
+            _adjacent(geohash: s, direction: .e), // se
+            _adjacent(geohash: n, direction: .w), // nw
+            _adjacent(geohash: s, direction: .w) // sw
+        ]
+    }
+
+    /// A valid geohash is non-empty and made only of characters from the base32 alphabet.
+    private static func isValid(_ geohash: String) -> Bool {
+        !geohash.isEmpty && geohash.allSatisfy { bitmap[$0] != nil }
+    }
+
+    // The caller must have checked that `geohash` is valid.
+    private static func _adjacent(geohash: String, direction: Direction) -> String {
         let lastChar = geohash.last!
         var parent = String(geohash.dropLast())
         let type = geohash.count % 2
 
         // Check for edge-cases which don't share common prefix
         if direction.border[type].contains(lastChar), !parent.isEmpty {
-            parent = Geohash.adjacent(geohash: parent, direction: direction)
+            parent = _adjacent(geohash: parent, direction: direction)
         }
 
         // Append letter for direction to parent
         let charIndex = direction.neighbor[type].distance(of: lastChar)!
 
         return parent + String(base32[charIndex])
-    }
-
-    static func neighbors(geohash: String) -> [String] {
-        let n = adjacent(geohash: geohash, direction: .n)
-        let e = adjacent(geohash: geohash, direction: .e)
-        let s = adjacent(geohash: geohash, direction: .s)
-        let w = adjacent(geohash: geohash, direction: .w)
-
-        return [
-            n, e, s, w,
-            adjacent(geohash: n, direction: .e), // ne
-            adjacent(geohash: s, direction: .e), // se
-            adjacent(geohash: n, direction: .w), // nw
-            adjacent(geohash: s, direction: .w) // sw
-        ]
     }
 }
 
@@ -222,7 +241,7 @@ public extension Geohash {
         case seventyFourMillimeters             // ±0.000074 km
     }
 
-    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String {
+    static func encode(latitude: Double, longitude: Double, precision: Precision) -> String? {
         return encode(latitude: latitude, longitude: longitude, length: precision.rawValue)
     }
 }

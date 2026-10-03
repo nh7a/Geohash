@@ -47,6 +47,30 @@ final class GeohashTests: XCTestCase {
         }
     }
 
+    func testEncodeInvalidInput() {
+        XCTAssertNil(Geohash.encode(latitude: 0, longitude: 0, length: -1))
+        XCTAssertNil(Geohash.encode(latitude: .nan, longitude: 0, length: 5))
+        XCTAssertNil(Geohash.encode(latitude: 0, longitude: .nan, length: 5))
+        XCTAssertNil(Geohash.encode(latitude: .infinity, longitude: 0, length: 5))
+        XCTAssertNil(Geohash.encode(latitude: 90.1, longitude: 0, length: 5))
+        XCTAssertNil(Geohash.encode(latitude: 0, longitude: -180.1, length: 5))
+
+        XCTAssertEqual(Geohash.encode(latitude: 0, longitude: 0, length: 0), "")
+        XCTAssertNotNil(Geohash.encode(latitude: 90, longitude: 180, length: 5))
+        XCTAssertNotNil(Geohash.encode(latitude: -90, longitude: -180, length: 5))
+    }
+
+    func testAdjacentInvalidInput() {
+        for direction in [Geohash.Direction.n, .e, .s, .w] {
+            XCTAssertNil(Geohash.adjacent(geohash: "", direction: direction))
+            XCTAssertNil(Geohash.adjacent(geohash: "U4PRUYDQQVJ", direction: direction))
+            XCTAssertNil(Geohash.adjacent(geohash: "u4pruydqqva", direction: direction))
+            XCTAssertNil(Geohash.adjacent(geohash: "a4pruydqqvj", direction: direction))
+        }
+        XCTAssertNil(Geohash.neighbors(geohash: ""))
+        XCTAssertNil(Geohash.neighbors(geohash: "u4pruydqqva"))
+    }
+
     func testGetAdjacent() {
         let north = Geohash.adjacent(geohash: "u4pruydqqvj", direction: .n)
         let east = Geohash.adjacent(geohash: "u4pruydqqvj", direction: .e)
@@ -77,6 +101,8 @@ final class GeohashTests: XCTestCase {
     static let allTests = [
         ("testDecode", testDecode),
         ("testEncode", testEncode),
+        ("testEncodeInvalidInput", testEncodeInvalidInput),
+        ("testAdjacentInvalidInput", testAdjacentInvalidInput),
         ("testGetAdjacent", testGetAdjacent),
         ("testGetNeighbors", testGetNeighbors),
     ]
