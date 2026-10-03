@@ -27,6 +27,10 @@ final class GeohashTests: XCTestCase {
     func testDecode() {
         XCTAssertNil(Geohash.decode(hash: "garbage"))
         XCTAssertNil(Geohash.decode(hash: "u$pruydqqvj"))
+        // Five invalid characters used to add up to a multiple of 5 bits and slip through.
+        XCTAssertNil(Geohash.decode(hash: "aaaaa"))
+        XCTAssertNil(Geohash.decode(hash: "u4pruydqqvj" + "aaaaa"))
+        XCTAssertNil(Geohash.decode(hash: "U4PRUYDQQVJ"))
 
         let (lat, lon) = Geohash.decode(hash: "u4pruydqqvj")!
         XCTAssertTrue(lat.min == 57.649109959602356)
