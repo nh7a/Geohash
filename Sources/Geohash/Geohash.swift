@@ -237,7 +237,7 @@ public extension Geohash {
         case sixHundredTenMeters                // ±0.61 km
         case seventySixMeters                   // ±0.076 km
         case nineteenMeters                     // ±0.019 km
-        case twoHundredFourtyCentimeters        // ±0.0024 km
+        case twoHundredFortyCentimeters         // ±0.0024 km
         case sixtyCentimeters                   // ±0.00060 km
         case seventyFourMillimeters             // ±0.000074 km
     }
