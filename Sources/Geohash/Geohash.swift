@@ -20,9 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if canImport(CoreLocation)
-import CoreLocation
-#endif
+import Foundation
 
 public enum Geohash {
     public static func decode(hash: String) -> (latitude: (min: Double, max: Double), longitude: (min: Double, max: Double))? {
@@ -121,6 +119,8 @@ public enum Geohash {
 #if canImport(CoreLocation)
 
 // MARK: - CLLocationCoordinate2D
+
+import CoreLocation
 
 public extension CLLocationCoordinate2D {
     init(geohash: String) {
